@@ -11,6 +11,7 @@ import os
 QDRANT_URL = os.getenv("QDRANT_URL")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
 COLLECTION_NAME = "mdd_collection"
 TRANSCRIPT_FILE = "mdd_transcript.txt"
 SIMILARITY_THRESHOLD = 0.5  # cosine similarity threshold
@@ -140,8 +141,7 @@ def generate_answer(context, question):
         return response.choices[0].message.content
 
 
-if __name__ == "__main__":
-    build_collection()
+
 
 
 
