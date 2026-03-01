@@ -44,3 +44,8 @@ npm install
 npm start
 Frontend runs at:
 http://localhost:3000
+
+
+
+
+To run this project locally, first clone the repository and navigate into the project folder. Then go to the backend directory and create a virtual environment using python -m venv venv, and activate it (on Windows use venv\Scripts\activate, on Mac/Linux use source venv/bin/activate). After activating the environment, install all required dependencies using pip install -r requirements.txt. Next, configure the required environment variables by creating a .env file inside the backend folder (or by setting system environment variables) and add your QDRANT_URL, QDRANT_API_KEY, and GROQ_API_KEY. Once the environment is configured, you must build the vector database collection by running python build_index.py. This step reads the transcript data, generates embeddings, and uploads them to Qdrant; it only needs to be done once during initial setup or whenever new transcript data is added. After the collection is successfully created, start the backend server using uvicorn main:app --reload. The backend will run at http://127.0.0.1:8000, and you can verify the API using http://127.0.0.1:8000/docs. To run the frontend, open a new terminal window, navigate to the frontend folder, install dependencies using npm install, and then start the React application using npm start. The frontend will run at http://localhost:3000 and will communicate with the FastAPI backend. Both backend and frontend must be running simultaneously for the chatbot to function properly. If new video transcripts are added in the future, run python build_index.py again to rebuild the vector database before restarting the backend server.
