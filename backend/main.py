@@ -5,10 +5,15 @@ from rag import retrieve, generate_answer
 
 app = FastAPI()
 
-# Enable CORS (important for React frontend later)
+# Enable CORS for all origins (or restrict if needed)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://mental-rag-project.vercel.app"],
+    allow_origins=[
+        "https://mental-rag-project.vercel.app",
+        "http://localhost:3000",  # For local development
+        "http://localhost:5173",  # For local Vite development
+        "*"  # Allow all origins for debugging
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -21,13 +26,21 @@ class QueryRequest(BaseModel):
 
 @app.post("/ask")
 def ask_question(request: QueryRequest):
-    question = request.question.strip()
+    try:
+        question = request.question.strip()
+        
+        if not question:
+            return {"answer": "Please provide a question"}
 
-    context = retrieve(question)
+        context = retrieve(question)
 
-    if context is None:
-        return {"answer": "Data not found"}
+        if context is None:
+            return {"answer": "I don't have information about that. Please consult a mental health professional."}
 
-    answer = generate_answer(context, question)
+        answer = generate_answer(context, question)
 
-    return {"answer": answer}
+        return {"answer": answer}
+    
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return {"answer": f"An error occurred: {str(e)}"}

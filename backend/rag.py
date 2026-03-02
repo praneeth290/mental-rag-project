@@ -16,7 +16,7 @@ QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 
 COLLECTION_NAME = "mdd_collection"
 TRANSCRIPT_FILE = "mdd_transcript.txt"
-SIMILARITY_THRESHOLD = 0.3  # Lower threshold to catch more relevant results
+SIMILARITY_THRESHOLD = 0.5  # Lower threshold to catch more relevant results
 
 groq_client = Groq(api_key=GROQ_API_KEY)
 
