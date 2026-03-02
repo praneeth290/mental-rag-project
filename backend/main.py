@@ -8,7 +8,7 @@ app = FastAPI()
 # Enable CORS (important for React frontend later)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://mental-rag-project.vercel.app"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
