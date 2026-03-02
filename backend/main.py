@@ -2,18 +2,16 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from rag import retrieve, generate_answer
+from dotenv import load_dotenv
+import os
 
 app = FastAPI()
-
+load_dotenv()
+frontend_url = os.getenv("FRONTEND_URL")
 # Enable CORS for all origins (or restrict if needed)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://mental-rag-project.vercel.app",
-        "http://localhost:3000",  # For local development
-        "http://localhost:5173",  # For local Vite development
-        "*"  # Allow all origins for debugging
-    ],
+    allow_origins=[frontend_url],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
