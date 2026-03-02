@@ -16,7 +16,7 @@ QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 
 COLLECTION_NAME = "mdd_collection"
 TRANSCRIPT_FILE = "mdd_transcript.txt"
-SIMILARITY_THRESHOLD = 0.5  # cosine similarity threshold
+SIMILARITY_THRESHOLD = 0.3  # Lower threshold to catch more relevant results
 
 groq_client = Groq(api_key=GROQ_API_KEY)
 
@@ -27,7 +27,7 @@ client = QdrantClient(
 )
 
 
-model = SentenceTransformer("all-mpnet-base-v2")  # Better for medical content
+model = SentenceTransformer("all-MiniLM-L6-v2")  # Fast & reliable for medical content
 
 
 # ===== CHUNKING =====
@@ -110,10 +110,19 @@ def retrieve(query):
     results = client.query_points(
         collection_name=COLLECTION_NAME,
         query=query_embedding,
-        limit=5,  # Retrieve more results for better context
+        limit=8,  # Get more results for better context
         score_threshold=SIMILARITY_THRESHOLD,  # Filter by relevance
     ).points
 
+    if not results:
+        # If no results found, try again with lower threshold
+        results = client.query_points(
+            collection_name=COLLECTION_NAME,
+            query=query_embedding,
+            limit=8,
+            score_threshold=0.2,  # Fallback threshold
+        ).points
+    
     if not results:
         return None
 
