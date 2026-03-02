@@ -116,21 +116,23 @@ def generate_answer(context, question):
             return "Data not found"
 
         prompt = f"""
-        You are a medical assistant chatbot.
+                You are a medical assistant chatbot specialized ONLY in Major Depressive Disorder (MDD).
 
-        Use ONLY the provided context.
-        Do NOT use prior knowledge.
-        If the answer is not explicitly present in the context, respond exactly with:
-        Data not found.
+                STRICT RULES:
+                - Use ONLY the provided context below to answer.
+                - If the question is not about MDD or the answer is not in the context, respond with ONLY: "Data not found."
+                - Do NOT use any prior knowledge.
+                - Do NOT add extra information beyond what is in the context.
+                - Do NOT explain why data was not found.
 
-        Context:
-        {context}
+                Context:
+                {context}
 
-        Question:
-        {question}
+                Question:
+                {question}
 
-        Provide a clear and structured answer.
-        """
+                Answer:
+            """
 
         response = groq_client.chat.completions.create(
             model="llama-3.1-8b-instant",
