@@ -26,24 +26,33 @@ client = QdrantClient(
     api_key=QDRANT_API_KEY,
 )
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+model = SentenceTransformer("all-mpnet-base-v2")  # Better for medical content
 
 
 # ===== CHUNKING =====
-def chunk_text(text, max_sentences=5):
+def chunk_text(text, max_sentences=7):
+    """Improved chunking with better semantic boundaries"""
     sentences = text.split(". ")
     chunks = []
     current_chunk = []
+    current_length = 0
 
     for sentence in sentences:
-        current_chunk.append(sentence.strip())
+        sentence = sentence.strip()
+        if not sentence:
+            continue
+        
+        current_chunk.append(sentence)
+        current_length += len(sentence.split())
 
-        if len(current_chunk) >= max_sentences:
-            chunks.append(". ".join(current_chunk))
+        # Chunk based on both sentence count and word count for better context
+        if len(current_chunk) >= max_sentences or current_length > 150:
+            chunks.append(". ".join(current_chunk) + ".")
             current_chunk = []
+            current_length = 0
 
     if current_chunk:
-        chunks.append(". ".join(current_chunk))
+        chunks.append(". ".join(current_chunk) + ".")
 
     return chunks
 
@@ -100,46 +109,50 @@ def retrieve(query):
     results = client.query_points(
         collection_name=COLLECTION_NAME,
         query=query_embedding,
-        limit=3,
+        limit=5,  # Retrieve more results for better context
+        score_threshold=SIMILARITY_THRESHOLD,  # Filter by relevance
     ).points
 
     if not results:
         return None
 
-    context = " ".join([r.payload["text"] for r in results])
+    # Sort by score and combine best matches
+    sorted_results = sorted(results, key=lambda x: x.score, reverse=True)
+    context = " ".join([r.payload["text"] for r in sorted_results])
     return context
     
 
 
 def generate_answer(context, question):
         if context is None:
-            return "Data not found"
+            return "I don't have information about that in our database. Please consult a mental health professional."
 
-        prompt = f"""
-                You are a medical assistant chatbot specialized ONLY in Major Depressive Disorder (MDD).
+        prompt = f"""You are an expert medical assistant specializing in Major Depressive Disorder (MDD) and mental health.
 
-                STRICT RULES:
-                - Use ONLY the provided context below to answer.
-                - If the question is not about MDD or the answer is not in the context, respond with ONLY: "Data not found."
-                - Do NOT use any prior knowledge.
-                - Do NOT add extra information beyond what is in the context.
-                - Do NOT explain why data was not found.
+Your task is to answer questions accurately using ONLY the provided context.
 
-                Context:
-                {context}
+CRITICAL RULES:
+1. Use ONLY the provided context - do NOT use prior knowledge
+2. If the answer is not in the context, respond: "This information is not available in our database. Please consult with a healthcare professional."
+3. Be accurate, clear, and structured
+4. For medical symptoms or treatments, provide specific details from the context
+5. If asking for medical advice, remind users to consult professionals
 
-                Question:
-                {question}
+Context Information:
+{context}
 
-                Answer:
-            """
+User Question:
+{question}
+
+Provide a clear, well-structured answer based ONLY on the context above."""
 
         response = groq_client.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=[
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.2,
+            temperature=0.3,  # Slightly higher for more natural responses
+            max_tokens=500,
         )
 
         return response.choices[0].message.content
