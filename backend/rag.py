@@ -26,6 +26,7 @@ client = QdrantClient(
     api_key=QDRANT_API_KEY,
 )
 
+
 model = SentenceTransformer("all-mpnet-base-v2")  # Better for medical content
 
 
