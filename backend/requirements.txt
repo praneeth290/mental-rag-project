@@ -1,7 +1,7 @@
-fastapi
-uvicorn
-qdrant-client
-sentence-transformers
-groq
-numpy
-torch
+fastapi==0.135.1
+groq==1.0.0
+openai_whisper==20250625
+pydantic==2.12.5
+python-dotenv==1.2.2
+qdrant_client==1.17.0
+sentence_transformers==5.2.3

@@ -4,13 +4,15 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import VectorParams, Distance, PointStruct
 from sentence_transformers import SentenceTransformer
 from groq import Groq
+from dotenv import load_dotenv
 
 # ===== CONFIG =====
 import os
 
+load_dotenv()  
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 QDRANT_URL = os.getenv("QDRANT_URL")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 COLLECTION_NAME = "mdd_collection"
 TRANSCRIPT_FILE = "mdd_transcript.txt"
